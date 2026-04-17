@@ -1,69 +1,135 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PharmacyApi.Models.Domain;
-using System.Collections.Generic;
-using System.Reflection.Emit;
+using PharmacyApi.Models.Domin;
 
-namespace PharmacyApi.Data
+namespace PharmacyApi.Data;
+
+public class AppDbContext : DbContext
 {
-    public class AppDbContext : DbContext
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    }
+
+    // ==================== Member A ====================
+    public DbSet<User> Users { get; set; }
+    public DbSet<LoyaltyPoint> LoyaltyPoints { get; set; }
+
+    // ==================== Member B ====================
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Inventory> Inventories { get; set; }
+
+    // ==================== Member C (you) ====================
+    public DbSet<Prescription> Prescriptions { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+
+    // ==================== Member D ====================
+    public DbSet<HealthPackage> HealthPackages { get; set; }
+    public DbSet<HealthPackageItem> HealthPackageItems { get; set; }
+    public DbSet<SeasonalOffer> SeasonalOffers { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // ========== Member A: User & LoyaltyPoint ==========
+        modelBuilder.Entity<User>(entity =>
         {
-        }
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Email).IsUnique();
+            entity.HasIndex(u => u.Username).IsUnique();
 
-        // Member A: Users and LoyaltyPoints (ADD THESE)
-        public DbSet<User> Users { get; set; }
-        public DbSet<LoyaltyPoint> LoyaltyPoints { get; set; }
+            entity.Property(u => u.Email).IsRequired().HasMaxLength(256);
+            entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
+            entity.Property(u => u.Name).HasMaxLength(100);
+            entity.Property(u => u.PhoneNumber).HasMaxLength(20);
+            entity.Property(u => u.Address).HasMaxLength(500);
+            entity.Property(u => u.Role).HasDefaultValue("User").HasMaxLength(50);
+            entity.Property(u => u.IsActive).HasDefaultValue(true);
+        });
 
-        // Team C: Prescriptions, Orders, OrderItems
-        public DbSet<Prescription> Prescriptions { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItem> OrderItems { get; set; }
-
-        // Member D DbSets
-        public DbSet<HealthPackage> HealthPackages { get; set; }
-        public DbSet<HealthPackageItem> HealthPackageItems { get; set; }
-        public DbSet<SeasonalOffer> SeasonalOffers { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        modelBuilder.Entity<LoyaltyPoint>(entity =>
         {
-            base.OnModelCreating(modelBuilder);
+            entity.HasKey(l => l.Id);
+            entity.HasIndex(l => l.UserId).IsUnique();
+            entity.Property(l => l.Points).HasDefaultValue(0);
+            entity.Property(l => l.TotalPointsEarned).HasDefaultValue(0);
+            entity.Property(l => l.TotalPointsRedeemed).HasDefaultValue(0);
+            entity.Property(l => l.Tier).HasDefaultValue("Bronze").HasMaxLength(50);
+            entity.HasOne(l => l.User)
+                  .WithOne(u => u.LoyaltyPoint)
+                  .HasForeignKey<LoyaltyPoint>(l => l.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
 
-            // Member A: User and LoyaltyPoint configurations (ADD THESE)
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasKey(u => u.Id);
+        // ========== Member C: Prescriptions, Orders, OrderItems ==========
+        modelBuilder.Entity<Prescription>(entity =>
+        {
+            entity.HasOne(p => p.User)
+                  .WithMany()
+                  .HasForeignKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(u => u.Email)
-                      .IsUnique();
+            entity.HasOne(p => p.Order)
+                  .WithOne(o => o.Prescription)
+                  .HasForeignKey<Prescription>(p => p.OrderId)
+                  .OnDelete(DeleteBehavior.SetNull);
 
-                entity.HasIndex(u => u.Username)
-                      .IsUnique();
+            entity.Property(p => p.Status).HasDefaultValue("Pending");
+            entity.HasIndex(p => p.Status);
+        });
 
-                entity.Property(u => u.Email)
-                      .IsRequired()
-                      .HasMaxLength(256);
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasOne(o => o.User)
+                  .WithMany()
+                  .HasForeignKey(o => o.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-                entity.Property(u => u.Username)
-                      .IsRequired()
-                      .HasMaxLength(100);
+            entity.HasMany(o => o.OrderItems)
+                  .WithOne(oi => oi.Order)
+                  .HasForeignKey(oi => oi.OrderId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(o => o.Status).HasDefaultValue("Confirmed");
+            entity.HasIndex(o => o.UserId);
+        });
 
-                entity.Property(u => u.PasswordHash)
-                      .IsRequired()
-                      .HasMaxLength(255);
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasOne(oi => oi.Product)
+                  .WithMany()
+                  .HasForeignKey(oi => oi.ProductId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-                entity.Property(u => u.FirstName)
-                      .HasMaxLength(100);
+            entity.HasIndex(oi => oi.OrderId);
+        });
 
-                entity.Property(u => u.LastName)
-                      .HasMaxLength(100);
+        // ========== Member D: HealthPackage, HealthPackageItem, SeasonalOffer ==========
+        modelBuilder.Entity<HealthPackage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+            entity.Property(e => e.DiscountedPrice).HasPrecision(18, 2);
 
-                entity.Property(u => u.PhoneNumber)
-                      .HasMaxLength(20);
+            entity.HasMany(e => e.Items)
+                  .WithOne(i => i.HealthPackage)
+                  .HasForeignKey(i => i.HealthPackageId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
 
-                entity.Property(u => u.Address)
-                      .HasMaxLength(500);
+        modelBuilder.Entity<HealthPackageItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Product)
+                  .WithMany()
+                  .HasForeignKey(e => e.ProductId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
 
+<<<<<<< HEAD
                 entity.Property(u => u.Role)
                       .HasDefaultValue("Customer")
                       .HasMaxLength(20);
@@ -214,5 +280,18 @@ namespace PharmacyApi.Data
                 entity.Ignore(e => e.IsCurrentlyActive);
             });
         }
+=======
+        modelBuilder.Entity<SeasonalOffer>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.DiscountPercentage).HasPrecision(5, 2);
+            entity.HasOne(e => e.Category)
+                  .WithMany()
+                  .HasForeignKey(e => e.CategoryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+            entity.Ignore(e => e.IsCurrentlyActive);
+        });
+>>>>>>> aac9033ca3f2207f774c2f5912acea98aed7d5d0
     }
 }

@@ -1,16 +1,47 @@
+using Microsoft.EntityFrameworkCore;
+using PharmacyApi.Data;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PharmacyApi.Data;
 using PharmacyApi.Helpers;
 using PharmacyApi.Services;
-
 var builder = WebApplication.CreateBuilder(args);
+//DBConnection
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
+
+builder.Services.AddScoped<IOrderHistoryService, OrderHistoryService>();
+builder.Services.AddScoped<IQuickReorderService, QuickReorderService>();
+builder.Services.AddScoped<IHealthPackageService, HealthPackageService>();
+builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtHelper, JwtHelper>();
+
+// Add services to the container.
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
 // Add services to container
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger configuration with JWT support
@@ -83,8 +114,10 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
 var app = builder.Build();
+var uploadsFolder = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "prescriptions");
+if (!Directory.Exists(uploadsFolder))
+    Directory.CreateDirectory(uploadsFolder);
 
 // Configure pipeline
 if (app.Environment.IsDevelopment())

@@ -10,14 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to container
 builder.Services.AddControllers();
-<<<<<<< HEAD
 
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-=======
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger configuration with JWT support
@@ -90,8 +88,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
->>>>>>> e70b193c49241ac70a0ef95904a7b3356f41b1ce
-
 var app = builder.Build();
 var uploadsFolder = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "prescriptions");
 if (!Directory.Exists(uploadsFolder))

@@ -1,10 +1,8 @@
 ﻿using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using PharmacyApi.Data;
 using PharmacyApi.DTOs.Auth;
 using PharmacyApi.Models.Domain;
-using PharmacyApi.DTOs.Auth;
 
 namespace PharmacyApi.Services
 {
@@ -34,8 +32,7 @@ namespace PharmacyApi.Services
                 Email = registerDto.Email,
                 Username = registerDto.Username,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
+                Name = registerDto.FirstName,
                 PhoneNumber = registerDto.PhoneNumber,
                 Address = registerDto.Address,
                 Role = "User",
@@ -85,8 +82,6 @@ namespace PharmacyApi.Services
                 UserId = user.Id,
                 Email = user.Email,
                 Username = user.Username,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
                 Role = user.Role,
                 LoyaltyPoints = loyaltyInfo?.Points ?? 0,
                 LoyaltyTier = loyaltyInfo?.Tier ?? "Bronze"
@@ -108,8 +103,6 @@ namespace PharmacyApi.Services
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
                 Address = user.Address,
                 Role = user.Role,
@@ -124,8 +117,7 @@ namespace PharmacyApi.Services
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return null;
 
-            user.FirstName = updateProfileDto.FirstName;
-            user.LastName = updateProfileDto.LastName;
+            user.Username = updateProfileDto.FirstName;
             user.PhoneNumber = updateProfileDto.PhoneNumber;
             user.Address = updateProfileDto.Address;
 

@@ -1,8 +1,7 @@
-<<<<<<< Updated upstream
-=======
+
 using Microsoft.EntityFrameworkCore;
 using PharmacyApi.Data;
->>>>>>> Stashed changes
+using PharmacyApi.Data;
 using PharmacyApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);

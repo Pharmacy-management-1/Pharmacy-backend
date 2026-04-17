@@ -1,10 +1,7 @@
-
-
 using Microsoft.EntityFrameworkCore;
 using PharmacyApi.Data;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PharmacyApi.Helpers;
@@ -17,8 +14,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
     ));
 
-
-
 builder.Services.AddScoped<IOrderHistoryService, OrderHistoryService>();
 builder.Services.AddScoped<IQuickReorderService, QuickReorderService>();
 builder.Services.AddScoped<IHealthPackageService, HealthPackageService>();
@@ -28,8 +23,6 @@ builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
-//builder.Services.AddScoped<>
-
 
 // Add services to the container.
 builder.Services.AddScoped<ICategoryService, CategoryService>();

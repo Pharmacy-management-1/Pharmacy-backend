@@ -1,7 +1,5 @@
 ﻿using PharmacyApi.DTOs.Auth;
 using PharmacyApi.Models.Domain;
-using PharmacyApi.DTOs.Auth;
-
 namespace PharmacyApi.Services
 {
     public interface IAuthService

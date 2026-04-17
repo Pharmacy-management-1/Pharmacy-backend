@@ -85,7 +85,7 @@ namespace PharmacyApi.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Role = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, defaultValue: "User")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     LastLoginAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: true)
                 },
@@ -180,7 +180,7 @@ namespace PharmacyApi.Migrations
                     TotalPointsRedeemed = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     Tier = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, defaultValue: "Bronze")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LastUpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                    LastUpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -201,7 +201,7 @@ namespace PharmacyApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    OrderDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    OrderDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false, defaultValue: "Confirmed")

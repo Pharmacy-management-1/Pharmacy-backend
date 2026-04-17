@@ -12,7 +12,7 @@ using PharmacyApi.Data;
 namespace PharmacyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260417095606_initdb")]
+    [Migration("20260417155411_initdb")]
     partial class initdb
     {
         /// <inheritdoc />
@@ -25,78 +25,6 @@ namespace PharmacyApi.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("PharmacyApi.Models.Domain.HealthPackage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<decimal?>("DiscountedPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("DurationDays")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("HealthPackages");
-                });
-
-            modelBuilder.Entity("PharmacyApi.Models.Domain.HealthPackageItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("HealthPackageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HealthPackageId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("HealthPackageItems");
-                });
-
             modelBuilder.Entity("PharmacyApi.Models.Domain.LoyaltyPoint", b =>
                 {
                     b.Property<int>("Id")
@@ -106,9 +34,7 @@ namespace PharmacyApi.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("LastUpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Points")
                         .ValueGeneratedOnAdd()
@@ -155,9 +81,7 @@ namespace PharmacyApi.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("OrderDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int?>("PrescriptionId")
                         .HasColumnType("int");
@@ -319,9 +243,7 @@ namespace PharmacyApi.Migrations
                         .HasColumnType("varchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -405,6 +327,78 @@ namespace PharmacyApi.Migrations
                     b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("PharmacyApi.Models.Domin.HealthPackage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("DiscountedPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HealthPackages");
+                });
+
+            modelBuilder.Entity("PharmacyApi.Models.Domin.HealthPackageItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("HealthPackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HealthPackageId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("HealthPackageItems");
                 });
 
             modelBuilder.Entity("PharmacyApi.Models.Domin.Inventory", b =>
@@ -518,25 +512,6 @@ namespace PharmacyApi.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("PharmacyApi.Models.Domain.HealthPackageItem", b =>
-                {
-                    b.HasOne("PharmacyApi.Models.Domain.HealthPackage", "HealthPackage")
-                        .WithMany("Items")
-                        .HasForeignKey("HealthPackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PharmacyApi.Models.Domin.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("HealthPackage");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("PharmacyApi.Models.Domain.LoyaltyPoint", b =>
                 {
                     b.HasOne("PharmacyApi.Models.Domain.User", "User")
@@ -615,6 +590,25 @@ namespace PharmacyApi.Migrations
                     b.Navigation("ParentCategory");
                 });
 
+            modelBuilder.Entity("PharmacyApi.Models.Domin.HealthPackageItem", b =>
+                {
+                    b.HasOne("PharmacyApi.Models.Domin.HealthPackage", "HealthPackage")
+                        .WithMany("Items")
+                        .HasForeignKey("HealthPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PharmacyApi.Models.Domin.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("HealthPackage");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("PharmacyApi.Models.Domin.Inventory", b =>
                 {
                     b.HasOne("PharmacyApi.Models.Domin.Product", "Product")
@@ -637,11 +631,6 @@ namespace PharmacyApi.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("PharmacyApi.Models.Domain.HealthPackage", b =>
-                {
-                    b.Navigation("Items");
-                });
-
             modelBuilder.Entity("PharmacyApi.Models.Domain.Order", b =>
                 {
                     b.Navigation("OrderItems");
@@ -659,6 +648,11 @@ namespace PharmacyApi.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("SubCategories");
+                });
+
+            modelBuilder.Entity("PharmacyApi.Models.Domin.HealthPackage", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("PharmacyApi.Models.Domin.Product", b =>

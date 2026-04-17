@@ -24,7 +24,7 @@ namespace PharmacyApi.Models.Domain
 
         public string Address { get; set; } = string.Empty;
 
-        public string Role { get; set; } = "User"; // User, Admin
+        public string Role { get; set; } = "Customer";  // User, Admin
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

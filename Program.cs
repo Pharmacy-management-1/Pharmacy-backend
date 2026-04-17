@@ -1,12 +1,38 @@
+
+
+using Microsoft.EntityFrameworkCore;
+using PharmacyApi.Data;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PharmacyApi.Data;
 using PharmacyApi.Helpers;
 using PharmacyApi.Services;
 var builder = WebApplication.CreateBuilder(args);
+//DBConnection
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
+
+
+
+builder.Services.AddScoped<IOrderHistoryService, OrderHistoryService>();
+builder.Services.AddScoped<IQuickReorderService, QuickReorderService>();
+builder.Services.AddScoped<IHealthPackageService, HealthPackageService>();
+builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Add services to the container.
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
 // Add services to container
 builder.Services.AddControllers();

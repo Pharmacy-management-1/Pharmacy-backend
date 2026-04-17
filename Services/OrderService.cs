@@ -2,17 +2,18 @@
 using PharmacyApi.Data;
 using PharmacyApi.DTOs;
 using PharmacyApi.Models.Domain;
-using PharmacyApi.Services; // Assume these interfaces exist
+using PharmacyApi.Models.Domin;
+using PharmacyApi.Models.DTOs;
 
 namespace PharmacyApi.Services;
 
 public class OrderService : IOrderService
 {
     private readonly AppDbContext _context;
-    private readonly IProductService _productService;      // Team B
-    private readonly IInventoryService _inventoryService;  // Team B
-    private readonly ILoyaltyService _loyaltyService;      // Team A
-    private readonly IEmailService _emailService;          // Team D
+    private readonly IProductService _productService;
+    private readonly IInventoryService _inventoryService;
+    private readonly ILoyaltyService _loyaltyService;
+    private readonly IEmailService _emailService;
 
     public OrderService(
         AppDbContext context,
@@ -32,7 +33,7 @@ public class OrderService : IOrderService
     {
         // 1. Validate prescription requirement
         var productIds = orderDto.Items.Select(i => i.ProductId).ToList();
-        bool needsPrescription = await _productService.AnyProductRequiresPrescription(productIds);
+        bool needsPrescription = await AnyProductRequiresPrescription(productIds); // temporary helper
 
         if (needsPrescription && orderDto.PrescriptionId == null)
             throw new InvalidOperationException("Prescription is required for this order.");
@@ -50,6 +51,7 @@ public class OrderService : IOrderService
         // 2. Check stock & calculate total
         decimal totalAmount = 0;
         var orderItems = new List<OrderItem>();
+        var productNames = new Dictionary<int, string>();
 
         foreach (var item in orderDto.Items)
         {
@@ -59,9 +61,10 @@ public class OrderService : IOrderService
 
             bool inStock = await _inventoryService.CheckStockAsync(item.ProductId, item.Quantity);
             if (!inStock)
-                throw new InvalidOperationException($"Insufficient stock for product {product.Name}.");
+                throw new InvalidOperationException($"Insufficient stock for product ID {item.ProductId}.");
 
             totalAmount += product.Price * item.Quantity;
+            productNames[item.ProductId] = product.Name ?? $"Product {item.ProductId}";
 
             orderItems.Add(new OrderItem
             {
@@ -83,22 +86,49 @@ public class OrderService : IOrderService
         };
 
         _context.Orders.Add(order);
-        await _context.SaveChangesAsync(); // Save to get Order.Id
+        await _context.SaveChangesAsync();
 
-        // 4. Decrement inventory (Team B)
+        // 4. Decrement inventory
         foreach (var item in orderDto.Items)
         {
             await _inventoryService.DecrementStockAsync(item.ProductId, item.Quantity);
         }
 
-        // 5. Add loyalty points (Team A) - e.g., 10 points per 100 spent
-        int points = (int)(totalAmount / 10); // 10 points per ₹100
-        await _loyaltyService.AddPointsAsync(userId, points);
+        // 5. Add loyalty points (10 points per ₹100 spent)
+        int points = (int)(totalAmount / 10);
+        await _loyaltyService.AddPointsAsync(userId, points, "Order placed");
 
-        // 6. Send email confirmation (Team D)
-        await _emailService.SendOrderConfirmationEmailAsync(order.Id, userId);
+        // 6. Send email confirmation
+        var emailDto = new OrderConfirmationEmailDto
+        {
+            OrderId = order.Id,
+            CustomerEmail = (await _context.Users.FindAsync(userId))?.Email ?? "customer@example.com",
+            CustomerName = (await _context.Users.FindAsync(userId))?.Username ?? "Customer",
+            OrderDate = order.OrderDate,
+            TotalAmount = totalAmount,
+            Items = orderDto.Items.Select(i => new OrderItemSummaryDto
+            {
+                ProductId = i.ProductId,
+                ProductName = productNames.GetValueOrDefault(i.ProductId, "Unknown"),
+                Quantity = i.Quantity,
+                UnitPrice = orderItems.First(oi => oi.ProductId == i.ProductId).UnitPrice
+            }).ToList()
+        };
+        await _emailService.SendOrderConfirmationAsync(emailDto);
 
         return order;
+    }
+
+    // Temporary helper – replace with _productService.AnyProductRequiresPrescription when Team B adds it
+    private async Task<bool> AnyProductRequiresPrescription(List<int> productIds)
+    {
+        foreach (var id in productIds)
+        {
+            var pro = await _productService.GetProductByIdAsync(id);
+            if (pro?.RequiresPrescription == true)
+                return true;
+        }
+        return false;
     }
 
     public async Task<Order?> GetOrderByIdAsync(int orderId)

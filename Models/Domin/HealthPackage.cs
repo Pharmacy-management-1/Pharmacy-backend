@@ -1,8 +1,4 @@
-﻿using PharmacyApi.Models.Domin;
-using System;
-using System.Collections.Generic;
-
-namespace PharmacyApi.Models.Domain
+﻿namespace PharmacyApi.Models.Domin
 {
     public class HealthPackage
     {

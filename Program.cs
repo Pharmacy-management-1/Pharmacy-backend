@@ -24,10 +24,17 @@ builder.Services.AddScoped<IQuickReorderService, QuickReorderService>();
 builder.Services.AddScoped<IHealthPackageService, HealthPackageService>();
 builder.Services.AddScoped<IOfferService, OfferService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtHelper, JwtHelper>();
+//builder.Services.AddScoped<>
+
 
 // Add services to the container.
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();

@@ -2,7 +2,6 @@
 using PharmacyApi.Data;
 using PharmacyApi.DTOs;
 using PharmacyApi.Models.Domin;
-
 namespace PharmacyApi.Services;
 
 public class ProductService : IProductService
@@ -51,7 +50,7 @@ public class ProductService : IProductService
             var inventory = new Inventory
             {
                 ProductId = product.Id,
-                QuantityInStock = productDto.InitialStock,
+                StockQuantity = productDto.InitialStock,
                 ReservedQuantity = 0,
                 ReorderLevel = productDto.ReorderLevel,
                 ReorderQuantity = productDto.ReorderQuantity,
@@ -199,7 +198,7 @@ public class ProductService : IProductService
 
         if (filter.InStock.HasValue && filter.InStock.Value)
         {
-            query = query.Where(p => p.Inventory != null && p.Inventory.QuantityInStock > 0);
+            query = query.Where(p => p.Inventory != null && p.Inventory.StockQuantity > 0);
         }
 
         // Get total count before pagination
@@ -249,11 +248,11 @@ public class ProductService : IProductService
         if (inventory == null)
             throw new ArgumentException($"Inventory for product ID {inventoryUpdate.ProductId} not found");
 
-        var newQuantity = inventory.QuantityInStock + inventoryUpdate.QuantityChange;
+        var newQuantity = inventory.StockQuantity + inventoryUpdate.QuantityChange;
         if (newQuantity < 0)
             throw new InvalidOperationException("Insufficient stock");
 
-        inventory.QuantityInStock = newQuantity;
+        inventory.StockQuantity = newQuantity;
         inventory.LastUpdated = DateTime.UtcNow;
 
         // Log inventory change (you might want to create an InventoryTransaction table)
@@ -265,10 +264,10 @@ public class ProductService : IProductService
         await _context.SaveChangesAsync();
 
         // Check if reorder is needed
-        if (inventory.QuantityInStock <= inventory.ReorderLevel)
+        if (inventory.StockQuantity <= inventory.ReorderLevel)
         {
             _logger.LogWarning($"Product {inventoryUpdate.ProductId} is below reorder level. " +
-                              $"Current stock: {inventory.QuantityInStock}, " +
+                              $"Current stock: {inventory.StockQuantity}, " +
                               $"Reorder level: {inventory.ReorderLevel}");
             // Trigger reorder notification here
         }
@@ -292,7 +291,7 @@ public class ProductService : IProductService
     {
         var inventories = await _context.Inventories
             .Include(i => i.Product)
-            .Where(i => i.QuantityInStock <= threshold && i.Product.IsActive)
+            .Where(i => i.StockQuantity <= threshold && i.Product.IsActive)
             .ToListAsync();
 
         return inventories.Select(MapToInventoryResponseDTO);
@@ -306,7 +305,7 @@ public class ProductService : IProductService
         if (inventory == null)
             throw new ArgumentException($"Inventory for product ID {productId} not found");
 
-        var availableStock = inventory.QuantityInStock - inventory.ReservedQuantity;
+        var availableStock = inventory.StockQuantity - inventory.ReservedQuantity;
         if (availableStock < quantity)
             throw new InvalidOperationException($"Insufficient available stock. Available: {availableStock}, Requested: {quantity}");
 
@@ -354,9 +353,9 @@ public class ProductService : IProductService
             ImageUrl = product.ImageUrl,
             CategoryId = product.CategoryId,
             CategoryName = category?.Name ?? string.Empty,
-            StockQuantity = inventory?.QuantityInStock ?? 0,
+            StockQuantity = inventory?.StockQuantity ?? 0,
             ReservedQuantity = inventory?.ReservedQuantity ?? 0,
-            AvailableQuantity = (inventory?.QuantityInStock ?? 0) - (inventory?.ReservedQuantity ?? 0),
+            AvailableQuantity = (inventory?.StockQuantity ?? 0) - (inventory?.ReservedQuantity ?? 0),
             ExpiryDate = inventory?.ExpiryDate,
             IsActive = product.IsActive,
             CreatedAt = product.CreatedAt
@@ -365,7 +364,7 @@ public class ProductService : IProductService
 
     private InventoryResponseDTO MapToInventoryResponseDTO(Inventory inventory)
     {
-        var availableQuantity = inventory.QuantityInStock - inventory.ReservedQuantity;
+        var availableQuantity = inventory.StockQuantity - inventory.ReservedQuantity;
         var isExpired = inventory.ExpiryDate.HasValue && inventory.ExpiryDate.Value < DateTime.UtcNow;
         var isExpiringSoon = inventory.ExpiryDate.HasValue &&
                             inventory.ExpiryDate.Value > DateTime.UtcNow &&
@@ -375,17 +374,22 @@ public class ProductService : IProductService
         {
             ProductId = inventory.ProductId,
             ProductName = inventory.Product?.Name ?? string.Empty,
-            QuantityInStock = inventory.QuantityInStock,
+            QuantityInStock = inventory.StockQuantity,
             ReservedQuantity = inventory.ReservedQuantity,
             AvailableQuantity = availableQuantity,
             ReorderLevel = inventory.ReorderLevel,
-            NeedsReorder = inventory.QuantityInStock <= inventory.ReorderLevel,
+            NeedsReorder = inventory.StockQuantity <= inventory.ReorderLevel,
             BatchNumber = inventory.BatchNumber,
             ExpiryDate = inventory.ExpiryDate,
             IsExpiringSoon = isExpiringSoon,
             IsExpired = isExpired,
             LastUpdated = inventory.LastUpdated
         };
+    }
+
+    public Task<bool> AnyProductRequiresPrescription(List<int> productIds)
+    {
+        throw new NotImplementedException();
     }
 }
     

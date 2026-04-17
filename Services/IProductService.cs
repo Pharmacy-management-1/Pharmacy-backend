@@ -15,4 +15,5 @@ public interface IProductService
         Task<IEnumerable<InventoryResponseDTO>> GetLowStockProductsAsync(int threshold = 10);
         Task<bool> ReserveStockAsync(int productId, int quantity);
         Task<bool> ReleaseReservedStockAsync(int productId, int quantity);
-    }
+        Task<bool> AnyProductRequiresPrescription(List<int> productIds);
+}

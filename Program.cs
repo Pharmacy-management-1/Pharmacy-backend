@@ -1,4 +1,13 @@
+using PharmacyApi.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddScoped<IOrderHistoryService, OrderHistoryService>();
+builder.Services.AddScoped<IQuickReorderService, QuickReorderService>();
+builder.Services.AddScoped<IHealthPackageService, HealthPackageService>();
+builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add services to the container.
 

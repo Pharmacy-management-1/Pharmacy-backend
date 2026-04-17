@@ -35,7 +35,7 @@ namespace PharmacyApi.Services
                 Name = registerDto.FirstName,
                 PhoneNumber = registerDto.PhoneNumber,
                 Address = registerDto.Address,
-                Role = "User",
+                Role = "Customer",
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };

@@ -65,8 +65,8 @@ namespace PharmacyApi.Data
                       .HasMaxLength(500);
 
                 entity.Property(u => u.Role)
-                      .HasDefaultValue("User")
-                      .HasMaxLength(50);
+                      .HasDefaultValue("Customer")
+                      .HasMaxLength(20);
 
                 entity.Property(u => u.CreatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");

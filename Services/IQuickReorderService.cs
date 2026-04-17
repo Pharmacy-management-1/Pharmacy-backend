@@ -1,6 +1,10 @@
-﻿namespace PharmacyApi.Services
+﻿using System.Threading.Tasks;
+using PharmacyApi.Models.DTOs;
+
+namespace PharmacyApi.Services
 {
-    public class IQuickReorderService
+    public interface IQuickReorderService
     {
+        Task<QuickReorderResponseDto> ReorderAsync(int orderId, int userId);
     }
 }

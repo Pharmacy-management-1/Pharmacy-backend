@@ -1,6 +1,12 @@
-﻿namespace PharmacyApi.Services
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using PharmacyApi.Models.DTOs;
+
+namespace PharmacyApi.Services
 {
-    public class IOrderHistoryService
+    public interface IOrderHistoryService
     {
+        Task<IEnumerable<OrderHistoryDto>> GetOrderHistoryAsync(int userId);
+        Task<OrderHistoryDto?> GetOrderDetailAsync(int orderId, int userId);
     }
 }

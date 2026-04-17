@@ -3,7 +3,6 @@ using PharmacyApi.Models.Domain;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-
 namespace PharmacyApi.Data
 {
     public class AppDbContext : DbContext
@@ -11,6 +10,10 @@ namespace PharmacyApi.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
+
+        // Member A: Users and LoyaltyPoints (ADD THESE)
+        public DbSet<User> Users { get; set; }
+        public DbSet<LoyaltyPoint> LoyaltyPoints { get; set; }
 
         // Team C: Prescriptions, Orders, OrderItems
         public DbSet<Prescription> Prescriptions { get; set; }
@@ -25,6 +28,82 @@ namespace PharmacyApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Member A: User and LoyaltyPoint configurations (ADD THESE)
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+
+                entity.HasIndex(u => u.Email)
+                      .IsUnique();
+
+                entity.HasIndex(u => u.Username)
+                      .IsUnique();
+
+                entity.Property(u => u.Email)
+                      .IsRequired()
+                      .HasMaxLength(256);
+
+                entity.Property(u => u.Username)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.PasswordHash)
+                      .IsRequired()
+                      .HasMaxLength(255);
+
+                entity.Property(u => u.FirstName)
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.LastName)
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.PhoneNumber)
+                      .HasMaxLength(20);
+
+                entity.Property(u => u.Address)
+                      .HasMaxLength(500);
+
+                entity.Property(u => u.Role)
+                      .HasDefaultValue("User")
+                      .HasMaxLength(50);
+
+                entity.Property(u => u.CreatedAt)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(u => u.IsActive)
+                      .HasDefaultValue(true);
+            });
+
+            // Member A: LoyaltyPoint configuration
+            modelBuilder.Entity<LoyaltyPoint>(entity =>
+            {
+                entity.HasKey(l => l.Id);
+
+                entity.HasIndex(l => l.UserId)
+                      .IsUnique();
+
+                entity.Property(l => l.Points)
+                      .HasDefaultValue(0);
+
+                entity.Property(l => l.TotalPointsEarned)
+                      .HasDefaultValue(0);
+
+                entity.Property(l => l.TotalPointsRedeemed)
+                      .HasDefaultValue(0);
+
+                entity.Property(l => l.Tier)
+                      .HasDefaultValue("Bronze")
+                      .HasMaxLength(50);
+
+                entity.Property(l => l.LastUpdatedAt)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(l => l.User)
+                      .WithOne(u => u.LoyaltyPoint)
+                      .HasForeignKey<LoyaltyPoint>(l => l.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // Team C: Prescriptions, Orders, OrderItems
             // Relationships for Prescription
@@ -81,7 +160,6 @@ namespace PharmacyApi.Data
 
             modelBuilder.Entity<OrderItem>()
                 .HasIndex(oi => oi.OrderId);
-
 
             // Member D DbSets configuration
             // ── HealthPackage ─────────────────────────────

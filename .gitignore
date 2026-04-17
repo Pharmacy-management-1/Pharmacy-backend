@@ -15,4 +15,4 @@ obj/
 Thumbs.db
 
 # Env files
-appsettings.Development.json
+appsettings.json

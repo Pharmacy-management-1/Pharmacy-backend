@@ -1,10 +1,8 @@
 ﻿using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using PharmacyApi.Data;
 using PharmacyApi.DTOs.Auth;
 using PharmacyApi.Models.Domain;
-using PharmacyApi.DTOs.Auth;
 
 namespace PharmacyApi.Services
 {

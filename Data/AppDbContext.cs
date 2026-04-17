@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PharmacyApi.Models.Domain;
-using PharmacyApi.Models.Domin;   // For User, LoyaltyPoint, Product, Category, Inventory
-// using PharmacyApi.Models.Domin; // Remove this – it's a typo, use Domain instead
+using PharmacyApi.Models.Domin;
 
 namespace PharmacyApi.Data;
 
@@ -48,7 +47,6 @@ public class AppDbContext : DbContext
             entity.Property(u => u.PhoneNumber).HasMaxLength(20);
             entity.Property(u => u.Address).HasMaxLength(500);
             entity.Property(u => u.Role).HasDefaultValue("User").HasMaxLength(50);
-            entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(u => u.IsActive).HasDefaultValue(true);
         });
 
@@ -60,8 +58,6 @@ public class AppDbContext : DbContext
             entity.Property(l => l.TotalPointsEarned).HasDefaultValue(0);
             entity.Property(l => l.TotalPointsRedeemed).HasDefaultValue(0);
             entity.Property(l => l.Tier).HasDefaultValue("Bronze").HasMaxLength(50);
-            entity.Property(l => l.LastUpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
             entity.HasOne(l => l.User)
                   .WithOne(u => u.LoyaltyPoint)
                   .HasForeignKey<LoyaltyPoint>(l => l.UserId)
@@ -96,9 +92,7 @@ public class AppDbContext : DbContext
                   .WithOne(oi => oi.Order)
                   .HasForeignKey(oi => oi.OrderId)
                   .OnDelete(DeleteBehavior.Cascade);
-
             entity.Property(o => o.Status).HasDefaultValue("Confirmed");
-            entity.Property(o => o.OrderDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.HasIndex(o => o.UserId);
         });
 
